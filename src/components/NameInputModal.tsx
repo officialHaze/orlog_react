@@ -56,7 +56,7 @@ export default function NameInputModal({ toDisplayNameInputModal, player1, playe
   }, [toDisplayNameInputModal]);
 
   return (
-    <div id="modal-bg" className="absolute h-full w-full bg-gray-100 flex justify-center">
+    <div id="modal-bg" className="absolute h-full w-full bg-gray-100 flex justify-center z-10">
       <div id="modal" className="mt-20 w-1/2 h-fit rounded-xl overflow-hidden shadow-lg">
         <header className="bg-red-600 text-white py-2 px-4">
           <h2 className="text-xl font-bold">Assign Player Names</h2>
