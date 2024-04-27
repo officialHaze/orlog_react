@@ -5,7 +5,7 @@ import usePlayer from "./utils/CustomHooks/usePlayer";
 import PlayerCard from "./components/PlayerCard";
 
 function App() {
-  const { players } = usePlayer();
+  const { players, currentPlayer, setCurrentPlayer } = usePlayer();
 
   const { displayNameInputModal, toDisplayNameInputModal } = usePlayerNameModal(
     players.player1.getPlayerName(),
@@ -23,8 +23,18 @@ function App() {
       )}
 
       <div className="board h-full flex justify-center items-center gap-10 p-20">
-        <PlayerCard player={players.player1} />
-        <PlayerCard player={players.player2} />
+        <PlayerCard
+          player={players.player1}
+          currentPlayer={currentPlayer}
+          allPlayers={players}
+          setCurrentPlayer={setCurrentPlayer}
+        />
+        <PlayerCard
+          player={players.player2}
+          currentPlayer={currentPlayer}
+          allPlayers={players}
+          setCurrentPlayer={setCurrentPlayer}
+        />
       </div>
     </div>
   );

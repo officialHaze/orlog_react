@@ -1,6 +1,12 @@
 import React from "react";
 import Dice from "../gamecomponents/Dice";
 import Player from "../gamecomponents/Player";
+import { GiPaperArrow } from "react-icons/gi";
+import { GiWoodAxe } from "react-icons/gi";
+import { PiShieldCheckeredFill } from "react-icons/pi";
+import { GiCrestedHelmet } from "react-icons/gi";
+import { GiCardPickup } from "react-icons/gi";
+import { MdToken } from "react-icons/md";
 
 interface Props {
   dice: Dice;
@@ -11,6 +17,15 @@ interface Props {
   displayConfirmBtn: boolean;
   type: string;
 }
+
+const iconMap: any = {
+  Arrow: <GiPaperArrow />,
+  Axe: <GiWoodAxe />,
+  Shield: <PiShieldCheckeredFill />,
+  Helmet: <GiCrestedHelmet />,
+  Steal: <GiCardPickup />,
+  "Favor Token": <MdToken />,
+};
 
 export default function DiceComponent({
   dice,
@@ -29,7 +44,7 @@ export default function DiceComponent({
       // of the player
       const dices = player.getDices();
       console.log(dices);
-      const filteredDices = dices.filter((dice_) => dice_.getId() !== selectedDiceId);
+      const filteredDices = dices.filter(dice_ => dice_.getId() !== selectedDiceId);
       console.log(filteredDices);
       // Update the dices list with the filtered listt
       player.setDices(filteredDices);
@@ -53,10 +68,10 @@ export default function DiceComponent({
     <button
       disabled={type === "selection" && !displayConfirmBtn}
       id={dice.getId()}
-      className="cursor-pointer"
+      className="cursor-pointer text-2xl"
       onClick={handleClick}
     >
-      {dice.getValueMeaning()}
+      {iconMap[dice.getValueMeaning()]}
     </button>
   );
 }

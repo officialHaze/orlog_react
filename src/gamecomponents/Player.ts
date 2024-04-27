@@ -14,6 +14,7 @@ export default class Player {
 
   private dices: Dice[] = [];
   private selectedDices: Dice[] = [];
+  private confirmedDices: Dice[] = [];
 
   private health: number = 5;
 
@@ -39,6 +40,10 @@ export default class Player {
     this.selectedDices = list;
   }
 
+  public setConfirmedDices(list: Dice[]) {
+    this.confirmedDices = [...this.confirmedDices, ...list];
+  }
+
   // Getter
   public getPlayerName() {
     return this.name;
@@ -50,6 +55,10 @@ export default class Player {
 
   public getSelectedDices() {
     return this.selectedDices;
+  }
+
+  public getConfirmedDices() {
+    return this.confirmedDices;
   }
 
   public getId() {
@@ -64,5 +73,11 @@ export default class Player {
 
   public emptyTheDices() {
     this.dices = [];
+  }
+
+  public resetDiceValues() {
+    this.dices.forEach(dice => {
+      dice.setValue(-1);
+    });
   }
 }
