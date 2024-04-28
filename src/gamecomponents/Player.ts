@@ -14,10 +14,11 @@ export default class Player {
 
   private dices: Dice[] = [];
   private selectedDices: Dice[] = [];
+  private confirmedDices: Dice[] = [];
 
   private health: number = 5;
 
-  private totalRounds = 0; // 3 is maximum
+  private turnsPlayed = 0; // 3 is maximum
 
   private confirmationStatus = false;
 
@@ -39,6 +40,14 @@ export default class Player {
     this.selectedDices = list;
   }
 
+  public setConfirmedDices(list: Dice[]) {
+    this.confirmedDices = [...this.confirmedDices, ...list];
+  }
+
+  public setTurnsPlayed(value: number) {
+    this.turnsPlayed = value;
+  }
+
   // Getter
   public getPlayerName() {
     return this.name;
@@ -52,8 +61,16 @@ export default class Player {
     return this.selectedDices;
   }
 
+  public getConfirmedDices() {
+    return this.confirmedDices;
+  }
+
   public getId() {
     return this.id;
+  }
+
+  public getTurnsPlayed() {
+    return this.turnsPlayed;
   }
 
   public readyTheDices() {
@@ -64,5 +81,15 @@ export default class Player {
 
   public emptyTheDices() {
     this.dices = [];
+  }
+
+  public resetDiceValues() {
+    this.dices.forEach(dice => {
+      dice.setValue(-1);
+    });
+  }
+
+  public isLastTurn(turnNumber: number) {
+    return turnNumber >= 3;
   }
 }

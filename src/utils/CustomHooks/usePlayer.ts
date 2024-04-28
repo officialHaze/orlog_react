@@ -7,5 +7,7 @@ export default function usePlayer() {
     player2: new Player(2),
   });
 
-  return { players };
+  const [currentPlayer, setCurrentPlayer] = useState(players.player1);
+
+  return { players, currentPlayer, setCurrentPlayer };
 }

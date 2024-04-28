@@ -1,21 +1,34 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Player from "../gamecomponents/Player";
 import Dice from "../gamecomponents/Dice";
 import DiceComponent from "./DiceComponent";
 
 interface Props {
   player: Player;
+  setCurrentPlayer: React.Dispatch<React.SetStateAction<Player>>;
+  allPlayers: { player1: Player; player2: Player };
+  currentPlayer: Player;
 }
 
-export default function PlayerCard({ player }: Props) {
+export default function PlayerCard({ player, allPlayers, setCurrentPlayer, currentPlayer }: Props) {
   const [currentDicePool, setCurrentDicePool] = useState<Dice[]>([]);
   const [selectedDicePool, setSelectedDicePool] = useState<Dice[]>([]);
+  const [confrmedDicePool, setConfirmedDicePool] = useState<Dice[]>([]);
   const [displayConfirmSelectionBtn, toDisplayConfirmSelectionBtn] = useState(false);
   const [disableRollBtn, toDisableRollBtn] = useState(false);
 
-  const [currentPlayerId, setCurrentPlayerId] = useState(1);
-  console.log(currentPlayerId);
-  console.log(player.getId());
+  const [turnsPlayed, setTurnsPlayed] = useState(player.getTurnsPlayed());
+  const [disableTheCard, toDisableTheCard] = useState(false);
+
+  const switchPlayer = () => {
+    if (currentPlayer.getId() === 1 && allPlayers.player2.getTurnsPlayed() < 3)
+      setCurrentPlayer(allPlayers.player2);
+    else if (currentPlayer.getId() === 2 && allPlayers.player1.getTurnsPlayed() < 3)
+      setCurrentPlayer(allPlayers.player1);
+
+    // Enable the roll btn
+    toDisableRollBtn(false);
+  };
 
   useEffect(() => {
     // ready the dices
@@ -29,30 +42,78 @@ export default function PlayerCard({ player }: Props) {
     };
   }, [player]);
 
-  const switchPlayer = () => {
-    if (currentPlayerId === 1) setCurrentPlayerId(2);
-    else setCurrentPlayerId(1);
-  };
+  // Disable the player card if the confirmed pool is filled with 6 dices
+  useMemo(() => {
+    if (confrmedDicePool.length >= 6) {
+      toDisableTheCard(true);
+      player.setTurnsPlayed(3); // Leave no turns remaining for the current player
+      setTurnsPlayed(player.getTurnsPlayed()); // Update the state to reflect the change on UI
+    }
+  }, [confrmedDicePool, player]);
 
   const handleClick = (e: React.MouseEvent<HTMLElement>) => {
     const { id: btnType } = e.currentTarget;
+
     if (btnType === "roll-btn") {
       // Handle dice roll
+
+      // Increment player turn by 1
+      let turnsPlayedInitial = player.getTurnsPlayed();
+      player.setTurnsPlayed(turnsPlayedInitial + 1);
+      // Update the state
+      setTurnsPlayed(player.getTurnsPlayed()); // Update with the final value
+
       // Get the dices for the current player
       const initialDiceList = player.getDices();
       console.log(initialDiceList);
       // Roll each dice seperately
-      initialDiceList.forEach((dice) => dice.roll());
+      initialDiceList.forEach(dice => dice.roll());
 
       // Update the dices state
       const afterRollDiceList = player.getDices();
       console.log(afterRollDiceList);
       setCurrentDicePool([...afterRollDiceList]);
 
+      // If the it is player's last turn then automatically move all the remaining dices
+      // from current pool to confirmed pool
+      if (player.isLastTurn(player.getTurnsPlayed())) {
+        player.setConfirmedDices(currentDicePool);
+        // Update the state for UI change
+        setConfirmedDicePool(player.getConfirmedDices());
+
+        // Empty the current in hand pool
+        player.emptyTheDices();
+        // Update the state to change UI
+        setCurrentDicePool(player.getDices());
+
+        //  Switch player
+        switchPlayer();
+
+        return; // End the code block here if this condition meets
+      }
+
+      // Show the confirm selection btn
+      // in case someone wants to skip selecting dice
+      toDisplayConfirmSelectionBtn(true);
       // Disable roll btn
-      toDisableRollBtn(true);
+      toDisableRollBtn(true); // One roll allowed per round
     } else {
-      toDisplayConfirmSelectionBtn(false);
+      // Handle confirmation for selected dice
+      toDisplayConfirmSelectionBtn(false); // Hide the confirm selection btn once clicked
+      // Push the dices from selection pool to confirmed pool
+      player.setConfirmedDices(selectedDicePool);
+      // Update the UI
+      setConfirmedDicePool(player.getConfirmedDices());
+      // Empty the selection pool
+      player.setSelectedDices([]);
+      // Update the selection pool UI
+      setSelectedDicePool(player.getSelectedDices());
+
+      // Reset the current pool
+      player.resetDiceValues();
+      // Update the UI
+      setCurrentDicePool(player.getDices());
+
       switchPlayer();
     }
   };
@@ -60,12 +121,29 @@ export default function PlayerCard({ player }: Props) {
   return (
     <div className="player-card h-fit w-1/2 border border-black p-4 relative">
       <div
-        className={`absolute w-full h-full bg-black opacity-60 top-0 left-0 ${
-          currentPlayerId !== player.getId() ? "block" : "hidden"
+        className={`absolute w-full h-full bg-black opacity-20 top-0 left-0 ${
+          currentPlayer.getId() !== player.getId() || disableTheCard ? "block" : "hidden"
         }`}
       />
       <h1 className="text-center text-xl">{player.getPlayerName()}</h1>
       <div className="flex flex-col gap-12 mt-10">
+        <div>
+          <div>Confirmed Pool: </div>
+          <div className="confirmed-dices flex items-center gap-6 flex-wrap">
+            {confrmedDicePool.map(dice => (
+              <DiceComponent
+                key={dice.getId()}
+                dice={dice}
+                player={player}
+                setCurrentDicePool={setCurrentDicePool}
+                setSelectedDicePool={setSelectedDicePool}
+                toDisplayConfirmBtn={toDisplayConfirmSelectionBtn}
+                displayConfirmBtn={displayConfirmSelectionBtn}
+                type="confirmed"
+              />
+            ))}
+          </div>
+        </div>
         <div>
           <div>
             Selected Pool:{" "}
@@ -83,7 +161,7 @@ export default function PlayerCard({ player }: Props) {
             </span>
           </div>
           <div className="selected-dices flex items-center gap-6 flex-wrap">
-            {selectedDicePool.map((dice) => (
+            {selectedDicePool.map(dice => (
               <DiceComponent
                 key={dice.getId()}
                 dice={dice}
@@ -100,7 +178,7 @@ export default function PlayerCard({ player }: Props) {
         <div>
           <div>Current Pool:</div>
           <div className="current-dices-in-hand flex items-center gap-6 flex-wrap">
-            {currentDicePool.map((dice) => (
+            {currentDicePool.map(dice => (
               <DiceComponent
                 key={dice.getId()}
                 dice={dice}
@@ -109,21 +187,23 @@ export default function PlayerCard({ player }: Props) {
                 setSelectedDicePool={setSelectedDicePool}
                 toDisplayConfirmBtn={toDisplayConfirmSelectionBtn}
                 displayConfirmBtn={displayConfirmSelectionBtn}
-                type="in-hand"
+                type="current"
               />
             ))}
           </div>
         </div>
       </div>
       <footer className="mt-20 text-center">
-        <button
-          id="roll-btn"
-          disabled={disableRollBtn}
-          className="px-8 py-2 bg-black text-white rounded-md"
-          onClick={handleClick}
-        >
-          Roll
-        </button>
+        {!player.isLastTurn(turnsPlayed) && (
+          <button
+            id="roll-btn"
+            disabled={disableRollBtn}
+            className="px-8 py-2 bg-black text-white rounded-md"
+            onClick={handleClick}
+          >
+            Roll
+          </button>
+        )}
       </footer>
     </div>
   );

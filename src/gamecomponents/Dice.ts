@@ -56,4 +56,9 @@ export default class Dice {
         return "";
     }
   }
+
+  // Setters
+  public setValue(value: number) {
+    this.value = value;
+  }
 }
