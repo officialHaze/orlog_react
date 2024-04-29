@@ -8,9 +8,16 @@ interface Props {
   setCurrentPlayer: React.Dispatch<React.SetStateAction<Player>>;
   allPlayers: { player1: Player; player2: Player };
   currentPlayer: Player;
+  roundOverFor: React.Dispatch<React.SetStateAction<Player[]>>;
 }
 
-export default function PlayerCard({ player, allPlayers, setCurrentPlayer, currentPlayer }: Props) {
+export default function PlayerCard({
+  player,
+  allPlayers,
+  setCurrentPlayer,
+  currentPlayer,
+  roundOverFor,
+}: Props) {
   const [currentDicePool, setCurrentDicePool] = useState<Dice[]>([]);
   const [selectedDicePool, setSelectedDicePool] = useState<Dice[]>([]);
   const [confrmedDicePool, setConfirmedDicePool] = useState<Dice[]>([]);
@@ -51,6 +58,10 @@ export default function PlayerCard({ player, allPlayers, setCurrentPlayer, curre
     }
   }, [confrmedDicePool, player]);
 
+  useEffect(() => {
+    if (confrmedDicePool.length >= 6) roundOverFor((prevState) => [...prevState, player]);
+  }, [roundOverFor, player, confrmedDicePool]);
+
   const handleClick = (e: React.MouseEvent<HTMLElement>) => {
     const { id: btnType } = e.currentTarget;
 
@@ -67,7 +78,7 @@ export default function PlayerCard({ player, allPlayers, setCurrentPlayer, curre
       const initialDiceList = player.getDices();
       console.log(initialDiceList);
       // Roll each dice seperately
-      initialDiceList.forEach(dice => dice.roll());
+      initialDiceList.forEach((dice) => dice.roll());
 
       // Update the dices state
       const afterRollDiceList = player.getDices();
@@ -130,7 +141,7 @@ export default function PlayerCard({ player, allPlayers, setCurrentPlayer, curre
         <div>
           <div>Confirmed Pool: </div>
           <div className="confirmed-dices flex items-center gap-6 flex-wrap">
-            {confrmedDicePool.map(dice => (
+            {confrmedDicePool.map((dice) => (
               <DiceComponent
                 key={dice.getId()}
                 dice={dice}
@@ -161,7 +172,7 @@ export default function PlayerCard({ player, allPlayers, setCurrentPlayer, curre
             </span>
           </div>
           <div className="selected-dices flex items-center gap-6 flex-wrap">
-            {selectedDicePool.map(dice => (
+            {selectedDicePool.map((dice) => (
               <DiceComponent
                 key={dice.getId()}
                 dice={dice}
@@ -178,7 +189,7 @@ export default function PlayerCard({ player, allPlayers, setCurrentPlayer, curre
         <div>
           <div>Current Pool:</div>
           <div className="current-dices-in-hand flex items-center gap-6 flex-wrap">
-            {currentDicePool.map(dice => (
+            {currentDicePool.map((dice) => (
               <DiceComponent
                 key={dice.getId()}
                 dice={dice}
