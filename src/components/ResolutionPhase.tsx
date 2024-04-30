@@ -3,8 +3,6 @@ import Player from "../gamecomponents/Player";
 import { FaHeart } from "react-icons/fa6";
 import useDiceSeperation from "../utils/CustomHooks/useDiceSeperation";
 import { iconMap } from "./DiceComponent";
-import usePlayerHealth from "../utils/CustomHooks/usePlayerHealth";
-// import DiceComponent from "./DiceComponent";
 
 interface Props {
   player1: Player;
@@ -76,6 +74,13 @@ export default function ResolutionPhase({
     axeDicesP2: false,
   });
 
+  // Check for player health, whoever falls to zero first will loose
+  // and the later will win
+  useMemo(() => {
+    if (health1 <= 0) return alert("PLAYER 2 WON!");
+    else if (health2 <= 0) return alert("PLAYER 1 WON!");
+  }, [health1, health2]);
+
   useMemo(() => {
     const startComparingDices = async () => {
       if (diceSeperationCompleteForP1 && diceSeperationCompleteForP2) {
@@ -99,11 +104,11 @@ export default function ResolutionPhase({
         if (totalPlayer1ArrowAtks > totalPlayer2ArrowDefences) {
           // For a subtle animation increase the scale of arrow dices list
           // then de-scale it after certain ms
-          toIncreaseScale((prevState) => {
+          toIncreaseScale(prevState => {
             return { ...prevState, arrowDicesP1: true };
           });
           setTimeout(() => {
-            toIncreaseScale((prevState) => {
+            toIncreaseScale(prevState => {
               return { ...prevState, arrowDicesP1: false };
             });
           }, 500);
@@ -120,11 +125,11 @@ export default function ResolutionPhase({
         if (totalPlayer2ArrowAtks > totalPlayer1ArrowDefences) {
           // For a subtle animation increase the scale of arrow dices list
           // then de-scale it after certain ms
-          toIncreaseScale((prevState) => {
+          toIncreaseScale(prevState => {
             return { ...prevState, arrowDicesP2: true };
           });
           setTimeout(() => {
-            toIncreaseScale((prevState) => {
+            toIncreaseScale(prevState => {
               return { ...prevState, arrowDicesP2: false };
             });
           }, 500);
@@ -141,11 +146,11 @@ export default function ResolutionPhase({
         if (totalPlayer1AxeAtks > totalPlayer2AxeDefences) {
           // For a subtle animation increase the scale of arrow dices list
           // then de-scale it after certain ms
-          toIncreaseScale((prevState) => {
+          toIncreaseScale(prevState => {
             return { ...prevState, axeDicesP1: true };
           });
           setTimeout(() => {
-            toIncreaseScale((prevState) => {
+            toIncreaseScale(prevState => {
               return { ...prevState, axeDicesP1: false };
             });
           }, 500);
@@ -162,11 +167,11 @@ export default function ResolutionPhase({
         if (totalPlayer2AxeAtks > totalPlayer1AxeDefences) {
           // For a subtle animation increase the scale of arrow dices list
           // then de-scale it after certain ms
-          toIncreaseScale((prevState) => {
+          toIncreaseScale(prevState => {
             return { ...prevState, axeDicesP2: true };
           });
           setTimeout(() => {
-            toIncreaseScale((prevState) => {
+            toIncreaseScale(prevState => {
               return { ...prevState, axeDicesP2: false };
             });
           }, 500);
@@ -187,8 +192,8 @@ export default function ResolutionPhase({
 
         await delay(2000);
 
-        if (player1.getHealth() <= 0) return alert(player2.getPlayerName() + " WON!");
-        else if (player2.getHealth() <= 0) return alert(player1.getPlayerName() + " WON!");
+        // if (player1.getHealth() <= 0) return alert(player2.getPlayerName() + " WON!");
+        // else if (player2.getHealth() <= 0) return alert(player1.getPlayerName() + " WON!");
 
         // Move to roll phase
         player1.reset();
@@ -252,7 +257,7 @@ export default function ResolutionPhase({
               increaseScale.arrowDicesP1 ? "scale-125" : "scale-100"
             }`}
           >
-            {player1ArrowAttacks.map((dice) => {
+            {player1ArrowAttacks.map(dice => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -261,7 +266,7 @@ export default function ResolutionPhase({
             })}
           </div>
           <div className="dices-shield flex items-center w-32">
-            {player1ArrowDefences.map((dice) => {
+            {player1ArrowDefences.map(dice => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -270,7 +275,7 @@ export default function ResolutionPhase({
             })}
           </div>
           <div className="dices-axe flex items-center w-32">
-            {player1AxeAttacks.map((dice) => {
+            {player1AxeAttacks.map(dice => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -279,7 +284,7 @@ export default function ResolutionPhase({
             })}
           </div>
           <div className="dices-helmet flex items-center w-32">
-            {player1AxeDefences.map((dice) => {
+            {player1AxeDefences.map(dice => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -288,7 +293,7 @@ export default function ResolutionPhase({
             })}
           </div>
           <div className="dices-steal flex items-center w-32">
-            {player1Thiefs.map((dice) => {
+            {player1Thiefs.map(dice => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -297,7 +302,7 @@ export default function ResolutionPhase({
             })}
           </div>
           <div className="dices-favors flex items-center w-32">
-            {player1Favors.map((dice) => {
+            {player1Favors.map(dice => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -311,7 +316,7 @@ export default function ResolutionPhase({
       <section className="player-2-section flex flex-col items-center p-20">
         <div className="dices-played w-fit flex items-center justify-evenly gap-6">
           <div className="dices-shield flex items-center w-32">
-            {player2ArrowDefences.map((dice) => {
+            {player2ArrowDefences.map(dice => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -324,7 +329,7 @@ export default function ResolutionPhase({
               increaseScale.arrowDicesp2 ? "scale-125" : "scale-100"
             }`}
           >
-            {player2ArrowAttacks.map((dice) => {
+            {player2ArrowAttacks.map(dice => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -333,7 +338,7 @@ export default function ResolutionPhase({
             })}
           </div>
           <div className="dices-helmet flex items-center w-32">
-            {player2AxeDefences.map((dice) => {
+            {player2AxeDefences.map(dice => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -342,7 +347,7 @@ export default function ResolutionPhase({
             })}
           </div>
           <div className="dices-axe flex items-center w-32">
-            {player2AxeAttacks.map((dice) => {
+            {player2AxeAttacks.map(dice => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -351,7 +356,7 @@ export default function ResolutionPhase({
             })}
           </div>
           <div className="dices-steal flex items-center w-32">
-            {player2Thiefs.map((dice) => {
+            {player2Thiefs.map(dice => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -360,7 +365,7 @@ export default function ResolutionPhase({
             })}
           </div>
           <div className="dices-favors flex items-center w-32">
-            {player2Favors.map((dice) => {
+            {player2Favors.map(dice => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
