@@ -10,6 +10,8 @@ export default function useDiceSeperation(player: Player) {
   const [thiefs, setThiefs] = useState<Dice[]>([]);
   const [favors, setFavors] = useState<Dice[]>([]);
 
+  const [diceSeperationComplete, isDiceSeperationComplete] = useState(false);
+
   useEffect(() => {
     const segregateDices = () => {
       player.getConfirmedDices().forEach((dice) => {
@@ -45,6 +47,7 @@ export default function useDiceSeperation(player: Player) {
     };
 
     segregateDices();
+    isDiceSeperationComplete(true);
 
     return () => {
       setArrowAttacks([]);
@@ -53,8 +56,27 @@ export default function useDiceSeperation(player: Player) {
       setAxeDefences([]);
       setThiefs([]);
       setFavors([]);
+
+      isDiceSeperationComplete(false);
     };
   }, [player]);
 
-  return { arrowAttacks, arrowDefences, axeAttacks, axeDefences, thiefs, favors };
+  return {
+    arrowAttacks,
+    arrowDefences,
+    axeAttacks,
+    axeDefences,
+    thiefs,
+    favors,
+    diceSeperationComplete,
+
+    setArrowAttacks,
+    setArrowDefences,
+
+    setAxeAttacks,
+    setAxeDefences,
+
+    setThiefs,
+    setFavors,
+  };
 }

@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .dices-shield,
+  .dices-arrow,
+  .dices-axe,
+  .dices-helmet,
+  .dices-steal,
+  .dices-favors {
+    @apply border border-black;
+  }
+
+  /* .dices-played {
+    @apply border-y-2 border-black;
+  } */
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
@@ -13,4 +28,3 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
-
