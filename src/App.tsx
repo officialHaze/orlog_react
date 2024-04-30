@@ -3,6 +3,8 @@ import usePlayerNameModal from "./utils/CustomHooks/usePlayerNameModal";
 import NameInputModal from "./components/NameInputModal";
 import usePlayer from "./utils/CustomHooks/usePlayer";
 import PlayerCard from "./components/PlayerCard";
+import useResolutionPhase from "./utils/CustomHooks/useResolutionPhase";
+import ResolutionPhase from "./components/ResolutionPhase";
 
 function App() {
   const { players, currentPlayer, setCurrentPlayer } = usePlayer();
@@ -11,6 +13,8 @@ function App() {
     players.player1.getPlayerName(),
     players.player2.getPlayerName()
   );
+
+  const { setRoundOverForPlayers, startResolutionPhase } = useResolutionPhase();
 
   return (
     <div className="main relative h-screen w-screen">
@@ -22,20 +26,26 @@ function App() {
         />
       )}
 
-      <div className="board h-full flex justify-center items-center gap-10 p-20">
-        <PlayerCard
-          player={players.player1}
-          currentPlayer={currentPlayer}
-          allPlayers={players}
-          setCurrentPlayer={setCurrentPlayer}
-        />
-        <PlayerCard
-          player={players.player2}
-          currentPlayer={currentPlayer}
-          allPlayers={players}
-          setCurrentPlayer={setCurrentPlayer}
-        />
-      </div>
+      {startResolutionPhase ? (
+        <ResolutionPhase player1={players.player1} player2={players.player2} />
+      ) : (
+        <div className="board h-full flex justify-center items-center gap-10 p-20">
+          <PlayerCard
+            player={players.player1}
+            currentPlayer={currentPlayer}
+            allPlayers={players}
+            setCurrentPlayer={setCurrentPlayer}
+            roundOverFor={setRoundOverForPlayers}
+          />
+          <PlayerCard
+            player={players.player2}
+            currentPlayer={currentPlayer}
+            allPlayers={players}
+            setCurrentPlayer={setCurrentPlayer}
+            roundOverFor={setRoundOverForPlayers}
+          />
+        </div>
+      )}
     </div>
   );
 }

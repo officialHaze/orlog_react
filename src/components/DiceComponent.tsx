@@ -18,7 +18,7 @@ interface Props {
   type: string;
 }
 
-const iconMap: any = {
+export const iconMap: any = {
   Arrow: <GiPaperArrow />,
   Axe: <GiWoodAxe />,
   Shield: <PiShieldCheckeredFill />,
@@ -44,7 +44,7 @@ export default function DiceComponent({
       // of the player
       const dices = player.getDices();
       console.log(dices);
-      const filteredDices = dices.filter(dice_ => dice_.getId() !== selectedDiceId);
+      const filteredDices = dices.filter((dice_) => dice_.getId() !== selectedDiceId);
       console.log(filteredDices);
       // Update the dices list with the filtered listt
       player.setDices(filteredDices);
@@ -68,7 +68,7 @@ export default function DiceComponent({
       // Filter the selection pool
       const initialSelectedDices = player.getSelectedDices();
       const filteredSelectedDices = initialSelectedDices.filter(
-        dice_ => dice_.getId() !== dice.getId()
+        (dice_) => dice_.getId() !== dice.getId()
       );
       player.setSelectedDices(filteredSelectedDices);
       // Change the state to update the UI

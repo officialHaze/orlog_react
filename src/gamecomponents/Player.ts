@@ -73,6 +73,10 @@ export default class Player {
     return this.turnsPlayed;
   }
 
+  public getHealth() {
+    return this.health;
+  }
+
   public readyTheDices() {
     for (let i = 0; i < 6; i++) {
       this.dices.push(new Dice());
@@ -84,7 +88,7 @@ export default class Player {
   }
 
   public resetDiceValues() {
-    this.dices.forEach(dice => {
+    this.dices.forEach((dice) => {
       dice.setValue(-1);
     });
   }
