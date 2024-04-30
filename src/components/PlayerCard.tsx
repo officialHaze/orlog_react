@@ -9,6 +9,7 @@ interface Props {
   allPlayers: { player1: Player; player2: Player };
   currentPlayer: Player;
   roundOverFor: React.Dispatch<React.SetStateAction<Player[]>>;
+  health: number;
 }
 
 export default function PlayerCard({
@@ -17,6 +18,7 @@ export default function PlayerCard({
   setCurrentPlayer,
   currentPlayer,
   roundOverFor,
+  health,
 }: Props) {
   const [currentDicePool, setCurrentDicePool] = useState<Dice[]>([]);
   const [selectedDicePool, setSelectedDicePool] = useState<Dice[]>([]);
@@ -45,7 +47,6 @@ export default function PlayerCard({
 
     return () => {
       player.emptyTheDices(); // Empty the dice list
-      // setCurrentDicePool(player.getDices());
     };
   }, [player]);
 
@@ -56,6 +57,12 @@ export default function PlayerCard({
       player.setTurnsPlayed(3); // Leave no turns remaining for the current player
       setTurnsPlayed(player.getTurnsPlayed()); // Update the state to reflect the change on UI
     }
+
+    // return () => {
+    //   toDisableTheCard(false);
+    //   player.setTurnsPlayed(0); // Leave no turns remaining for the current player
+    //   setTurnsPlayed(player.getTurnsPlayed()); // Update the state to reflect the change on UI
+    // };
   }, [confrmedDicePool, player]);
 
   useEffect(() => {
@@ -136,7 +143,9 @@ export default function PlayerCard({
           currentPlayer.getId() !== player.getId() || disableTheCard ? "block" : "hidden"
         }`}
       />
-      <h1 className="text-center text-xl">{player.getPlayerName()}</h1>
+      <h1 className="text-center text-xl">
+        {player.getPlayerName()} ({health})
+      </h1>
       <div className="flex flex-col gap-12 mt-10">
         <div>
           <div>Confirmed Pool: </div>

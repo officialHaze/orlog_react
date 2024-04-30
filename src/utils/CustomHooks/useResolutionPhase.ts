@@ -18,5 +18,5 @@ export default function useResolutionPhase() {
     return () => toStartResolutionPhase(false);
   }, [roundOverForPlayers]);
 
-  return { setRoundOverForPlayers, startResolutionPhase };
+  return { setRoundOverForPlayers, startResolutionPhase, toStartResolutionPhase };
 }

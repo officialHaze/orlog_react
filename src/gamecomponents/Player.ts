@@ -20,8 +20,6 @@ export default class Player {
 
   private turnsPlayed = 0; // 3 is maximum
 
-  private confirmationStatus = false;
-
   constructor(id: number) {
     this.id = id;
     this.name = `Player ${id}`;
@@ -46,6 +44,10 @@ export default class Player {
 
   public setTurnsPlayed(value: number) {
     this.turnsPlayed = value;
+  }
+
+  public setHealth(healthPoints: number) {
+    this.health = healthPoints;
   }
 
   // Getter
@@ -95,5 +97,15 @@ export default class Player {
 
   public isLastTurn(turnNumber: number) {
     return turnNumber >= 3;
+  }
+
+  public reset() {
+    this.emptyTheDices();
+    this.readyTheDices();
+    this.resetDiceValues();
+    this.selectedDices = [];
+    this.confirmedDices = [];
+
+    this.turnsPlayed = 0; // reset
   }
 }
