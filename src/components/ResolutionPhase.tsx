@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Player from "../gamecomponents/Player";
 import { FaHeart } from "react-icons/fa6";
 import useDiceSeperation from "../utils/CustomHooks/useDiceSeperation";
@@ -43,12 +43,6 @@ export default function ResolutionPhase({
     thiefs: player1Thiefs,
     favors: player1Favors,
     diceSeperationComplete: diceSeperationCompleteForP1,
-    setArrowAttacks: setPlayer1ArrowAtks,
-    setArrowDefences: setPlayer1ArrowDefences,
-    setAxeAttacks: setPlayer1AxeAtks,
-    setAxeDefences: setPlayer1AxeDefences,
-    setThiefs: setPlayer1Thiefs,
-    setFavors: setPlayer1Favors,
   } = useDiceSeperation(player1);
 
   const {
@@ -59,12 +53,6 @@ export default function ResolutionPhase({
     thiefs: player2Thiefs,
     favors: player2Favors,
     diceSeperationComplete: diceSeperationCompleteForP2,
-    setArrowAttacks: setPlayer2ArrowAtks,
-    setArrowDefences: setPlayer2ArrowDefences,
-    setAxeAttacks: setPlayer2AxeAtks,
-    setAxeDefences: setPlayer2AxeDefences,
-    setThiefs: setPlayer2Thiefs,
-    setFavors: setPlayer2Favors,
   } = useDiceSeperation(player2);
 
   const [increaseScale, toIncreaseScale] = useState({
@@ -74,12 +62,61 @@ export default function ResolutionPhase({
     axeDicesP2: false,
   });
 
+  const [hide, toHide] = useState({
+    // Player 1 related
+    arrowP1: false,
+    shieldP1: false,
+    axeP1: false,
+    helmetP1: false,
+    thiefP1: false,
+    favorTokenP1: false,
+
+    // Player 2 related
+    arrowP2: false,
+    shieldP2: false,
+    axeP2: false,
+    helmetP2: false,
+    thiefP2: false,
+    favorTokenP2: false,
+  });
+
+  const [healthColor, setHealthColor] = useState({
+    p1: "",
+    p2: "",
+  });
+
   // Check for player health, whoever falls to zero first will loose
   // and the later will win
   useMemo(() => {
-    if (health1 <= 0) return alert("PLAYER 2 WON!");
-    else if (health2 <= 0) return alert("PLAYER 1 WON!");
-  }, [health1, health2]);
+    if (health1 <= 0) {
+      alert(`${player2.getPlayerName()} WON!`);
+      window.location.reload();
+    } else if (health2 <= 0) {
+      alert(`${player1.getPlayerName()} WON!`);
+      window.location.reload();
+    }
+  }, [health1, health2, player1, player2]);
+
+  const animateHealthReduction = useCallback((playerId: number) => {
+    // Set the health color to red, initially
+    playerId === 1
+      ? setHealthColor((prevState) => {
+          return { ...prevState, p1: "text-red-500" };
+        })
+      : setHealthColor((prevState) => {
+          return { ...prevState, p2: "text-red-500" };
+        });
+    // After 500 ms change back the color
+    setTimeout(() => {
+      playerId === 1
+        ? setHealthColor((prevState) => {
+            return { ...prevState, p1: "" };
+          })
+        : setHealthColor((prevState) => {
+            return { ...prevState, p2: "" };
+          });
+    }, 500);
+  }, []);
 
   useMemo(() => {
     const startComparingDices = async () => {
@@ -104,98 +141,114 @@ export default function ResolutionPhase({
         if (totalPlayer1ArrowAtks > totalPlayer2ArrowDefences) {
           // For a subtle animation increase the scale of arrow dices list
           // then de-scale it after certain ms
-          toIncreaseScale(prevState => {
+          toIncreaseScale((prevState) => {
             return { ...prevState, arrowDicesP1: true };
           });
           setTimeout(() => {
-            toIncreaseScale(prevState => {
+            toIncreaseScale((prevState) => {
               return { ...prevState, arrowDicesP1: false };
             });
           }, 500);
 
           setHealth2(player2.getHealth() - (totalPlayer1ArrowAtks - totalPlayer2ArrowDefences));
+          animateHealthReduction(2);
         }
-        // // Remove arrow attacks for player 1 and arrow defences for player 2 from the list
-        // setPlayer1ArrowAtks([]);
-        // setPlayer2ArrowDefences([]);
 
-        await delay(1000);
+        // Hide player 1 arrows and player 2 shields
+        toHide((prevState) => {
+          return { ...prevState, arrowP1: true, shieldP2: true };
+        });
+
+        await delay(2000);
 
         // Compare player 1 arrow defences with player 2 arrow attacks
         if (totalPlayer2ArrowAtks > totalPlayer1ArrowDefences) {
           // For a subtle animation increase the scale of arrow dices list
           // then de-scale it after certain ms
-          toIncreaseScale(prevState => {
+          toIncreaseScale((prevState) => {
             return { ...prevState, arrowDicesP2: true };
           });
           setTimeout(() => {
-            toIncreaseScale(prevState => {
+            toIncreaseScale((prevState) => {
               return { ...prevState, arrowDicesP2: false };
             });
           }, 500);
 
           setHealth1(player1.getHealth() - (totalPlayer2ArrowAtks - totalPlayer1ArrowDefences));
+          animateHealthReduction(1);
         }
-        // // Remove arrow attacks for player 1 and arrow defences for player 2 from the list
-        // setPlayer2ArrowAtks([]);
-        // setPlayer1ArrowDefences([]);
 
-        await delay(1000);
+        // Hide player 1 shield and player 2 arrow
+        toHide((prevState) => {
+          return { ...prevState, arrowP2: true, shieldP1: true };
+        });
+
+        await delay(2000);
 
         // Compare player 1 axe attacks with player 2 axe defences
         if (totalPlayer1AxeAtks > totalPlayer2AxeDefences) {
           // For a subtle animation increase the scale of arrow dices list
           // then de-scale it after certain ms
-          toIncreaseScale(prevState => {
+          toIncreaseScale((prevState) => {
             return { ...prevState, axeDicesP1: true };
           });
           setTimeout(() => {
-            toIncreaseScale(prevState => {
+            toIncreaseScale((prevState) => {
               return { ...prevState, axeDicesP1: false };
             });
           }, 500);
 
           setHealth2(player2.getHealth() - (totalPlayer1AxeAtks - totalPlayer2AxeDefences));
+          animateHealthReduction(2);
         }
-        // // Remove axe attacks for player 1 and axe defences for player 2 from the list
-        // setPlayer1AxeAtks([]);
-        // setPlayer2AxeDefences([]);
 
-        await delay(1000);
+        // Hide player 1 axe and player 2 helmet
+        toHide((prevState) => {
+          return { ...prevState, axeP1: true, helmetP2: true };
+        });
+
+        await delay(2000);
 
         // Compare player 2 axe attacks with player 1 axe defences
         if (totalPlayer2AxeAtks > totalPlayer1AxeDefences) {
           // For a subtle animation increase the scale of arrow dices list
           // then de-scale it after certain ms
-          toIncreaseScale(prevState => {
+          toIncreaseScale((prevState) => {
             return { ...prevState, axeDicesP2: true };
           });
           setTimeout(() => {
-            toIncreaseScale(prevState => {
+            toIncreaseScale((prevState) => {
               return { ...prevState, axeDicesP2: false };
             });
           }, 500);
 
           setHealth1(player1.getHealth() - (totalPlayer2AxeAtks - totalPlayer1AxeDefences));
+          animateHealthReduction(1);
         }
-        // // Remove axe attacks for player 1 and axe defences for player 2 from the list
-        // setPlayer2AxeAtks([]);
-        // setPlayer1AxeDefences([]);
 
-        await delay(1000);
-
-        // Remove steal and favor tokens, (NO NEED TO CONSIDER THEM AS OF NOW)
-        // setPlayer1Thiefs([]);
-        // setPlayer1Favors([]);
-        // setPlayer2Thiefs([]);
-        // setPlayer2Favors([]);
+        // Hide player 2 axe and player 1 helmet
+        toHide((prevState) => {
+          return { ...prevState, axeP2: true, helmetP1: true };
+        });
 
         await delay(2000);
 
-        // if (player1.getHealth() <= 0) return alert(player2.getPlayerName() + " WON!");
-        // else if (player2.getHealth() <= 0) return alert(player1.getPlayerName() + " WON!");
+        // No need to do any kind of operation on steal and token dices as of now
 
-        // Move to roll phase
+        // Hide player 1 thiefs, player 1 favorTokens, player 2 thiefs and player 2 favor tokens
+        toHide((prevState) => {
+          return {
+            ...prevState,
+            thiefP1: true,
+            favorTokenP1: true,
+            thiefP2: true,
+            favorTokenP2: true,
+          };
+        });
+
+        await delay(2000);
+
+        // Move to roll phase. TODO: This functionality will be triggered when user clicks on continue
         player1.reset();
         player2.reset();
         resetRoundOverForPlayers([]);
@@ -224,18 +277,7 @@ export default function ResolutionPhase({
     player1,
     setHealth2,
     setHealth1,
-    // setPlayer1ArrowAtks,
-    // setPlayer2ArrowDefences,
-    // setPlayer2ArrowAtks,
-    // setPlayer1ArrowDefences,
-    // setPlayer1AxeAtks,
-    // setPlayer2AxeDefences,
-    // setPlayer2AxeAtks,
-    // setPlayer1AxeDefences,
-    // setPlayer1Thiefs,
-    // setPlayer1Favors,
-    // setPlayer2Thiefs,
-    // setPlayer2Favors,
+    animateHealthReduction,
     switchCoin,
     toStartResolutionPhase,
     resetRoundOverForPlayers,
@@ -246,7 +288,8 @@ export default function ResolutionPhase({
       <section className="player-1-section flex flex-col items-center p-20">
         <div className="hud flex items-center justify-between gap-10 w-1/2">
           <div className="health-points flex items-center gap-2">
-            <FaHeart className="text-2xl" /> <span className="text-2xl">{health1}</span>
+            <FaHeart className={`text-2xl ${healthColor.p1}`} />{" "}
+            <span className={`text-2xl ${healthColor.p1}`}>{health1}</span>
           </div>
           <h1 className="text-2xl font-bold">{player1.getPlayerName()}</h1>
         </div>
@@ -255,9 +298,9 @@ export default function ResolutionPhase({
           <div
             className={`dices-arrow transition-all flex items-center w-32 ${
               increaseScale.arrowDicesP1 ? "scale-125" : "scale-100"
-            }`}
+            } ${hide.arrowP1 && "hidden"}`}
           >
-            {player1ArrowAttacks.map(dice => {
+            {player1ArrowAttacks.map((dice) => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -265,8 +308,8 @@ export default function ResolutionPhase({
               );
             })}
           </div>
-          <div className="dices-shield flex items-center w-32">
-            {player1ArrowDefences.map(dice => {
+          <div className={`dices-shield flex items-center w-32 ${hide.shieldP1 && "hidden"}`}>
+            {player1ArrowDefences.map((dice) => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -274,8 +317,12 @@ export default function ResolutionPhase({
               );
             })}
           </div>
-          <div className="dices-axe flex items-center w-32">
-            {player1AxeAttacks.map(dice => {
+          <div
+            className={`dices-axe flex transition-all items-center w-32 ${
+              increaseScale.axeDicesP1 ? "scale-125" : "scale-100"
+            } ${hide.axeP1 && "hidden"}`}
+          >
+            {player1AxeAttacks.map((dice) => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -283,8 +330,8 @@ export default function ResolutionPhase({
               );
             })}
           </div>
-          <div className="dices-helmet flex items-center w-32">
-            {player1AxeDefences.map(dice => {
+          <div className={`dices-helmet flex items-center w-32 ${hide.helmetP1 && "hidden"}`}>
+            {player1AxeDefences.map((dice) => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -292,8 +339,8 @@ export default function ResolutionPhase({
               );
             })}
           </div>
-          <div className="dices-steal flex items-center w-32">
-            {player1Thiefs.map(dice => {
+          <div className={`dices-steal flex items-center w-32 ${hide.thiefP1 && "hidden"}`}>
+            {player1Thiefs.map((dice) => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -301,8 +348,8 @@ export default function ResolutionPhase({
               );
             })}
           </div>
-          <div className="dices-favors flex items-center w-32">
-            {player1Favors.map(dice => {
+          <div className={`dices-favors flex items-center w-32 ${hide.favorTokenP1 && "hidden"}`}>
+            {player1Favors.map((dice) => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -315,8 +362,8 @@ export default function ResolutionPhase({
 
       <section className="player-2-section flex flex-col items-center p-20">
         <div className="dices-played w-fit flex items-center justify-evenly gap-6">
-          <div className="dices-shield flex items-center w-32">
-            {player2ArrowDefences.map(dice => {
+          <div className={`dices-shield flex items-center w-32 ${hide.shieldP2 && "hidden"}`}>
+            {player2ArrowDefences.map((dice) => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -325,11 +372,11 @@ export default function ResolutionPhase({
             })}
           </div>
           <div
-            className={`dices-arrow flex items-center w-32 ${
+            className={`dices-arrow transition-all flex items-center w-32 ${
               increaseScale.arrowDicesp2 ? "scale-125" : "scale-100"
-            }`}
+            } ${hide.arrowP2 && "hidden"}`}
           >
-            {player2ArrowAttacks.map(dice => {
+            {player2ArrowAttacks.map((dice) => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -337,8 +384,8 @@ export default function ResolutionPhase({
               );
             })}
           </div>
-          <div className="dices-helmet flex items-center w-32">
-            {player2AxeDefences.map(dice => {
+          <div className={`dices-helmet flex items-center w-32 ${hide.helmetP2 && "hidden"}`}>
+            {player2AxeDefences.map((dice) => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -346,8 +393,12 @@ export default function ResolutionPhase({
               );
             })}
           </div>
-          <div className="dices-axe flex items-center w-32">
-            {player2AxeAttacks.map(dice => {
+          <div
+            className={`dices-axe flex transition-all items-center w-32 ${
+              increaseScale.axeDicesP2 ? "scale-125" : "scale-100"
+            } ${hide.axeP2 && "hidden"}`}
+          >
+            {player2AxeAttacks.map((dice) => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -355,8 +406,8 @@ export default function ResolutionPhase({
               );
             })}
           </div>
-          <div className="dices-steal flex items-center w-32">
-            {player2Thiefs.map(dice => {
+          <div className={`dices-steal flex items-center w-32 ${hide.thiefP2 && "hidden"}`}>
+            {player2Thiefs.map((dice) => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -364,8 +415,8 @@ export default function ResolutionPhase({
               );
             })}
           </div>
-          <div className="dices-favors flex items-center w-32">
-            {player2Favors.map(dice => {
+          <div className={`dices-favors flex items-center w-32 ${hide.favorTokenP2 && "hidden"}`}>
+            {player2Favors.map((dice) => {
               return (
                 <div key={dice.getId()} className="text-2xl">
                   {iconMap[dice.getValueMeaning()]}
@@ -376,7 +427,8 @@ export default function ResolutionPhase({
         </div>
         <div className="hud flex items-center justify-between gap-10 w-1/2 mt-10">
           <div className="health-points flex items-center gap-2">
-            <FaHeart className="text-2xl" /> <span className="text-2xl">{health2}</span>
+            <FaHeart className={`text-2xl ${healthColor.p2}`} />{" "}
+            <span className={`text-2xl ${healthColor.p2}`}>{health2}</span>
           </div>
           <h1 className="text-2xl font-bold">{player2.getPlayerName()}</h1>
         </div>
