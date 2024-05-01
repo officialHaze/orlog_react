@@ -42,8 +42,8 @@ export default function PlayerCard({
   useEffect(() => {
     // ready the dices
     player.readyTheDices();
-    // // Assign the current dice state
-    // setCurrentDicePool(player.getDices());
+    // Assign the current dice state
+    setCurrentDicePool(player.getDices());
 
     return () => {
       player.emptyTheDices(); // Empty the dice list
@@ -66,7 +66,7 @@ export default function PlayerCard({
   }, [confrmedDicePool, player]);
 
   useEffect(() => {
-    if (confrmedDicePool.length >= 6) roundOverFor((prevState) => [...prevState, player]);
+    if (confrmedDicePool.length >= 6) roundOverFor(prevState => [...prevState, player]);
   }, [roundOverFor, player, confrmedDicePool]);
 
   const handleClick = (e: React.MouseEvent<HTMLElement>) => {
@@ -85,7 +85,7 @@ export default function PlayerCard({
       const initialDiceList = player.getDices();
       console.log(initialDiceList);
       // Roll each dice seperately
-      initialDiceList.forEach((dice) => dice.roll());
+      initialDiceList.forEach(dice => dice.roll());
 
       // Update the dices state
       const afterRollDiceList = player.getDices();
@@ -150,7 +150,7 @@ export default function PlayerCard({
         <div>
           <div>Confirmed Pool: </div>
           <div className="confirmed-dices flex items-center gap-6 flex-wrap">
-            {confrmedDicePool.map((dice) => (
+            {confrmedDicePool.map(dice => (
               <DiceComponent
                 key={dice.getId()}
                 dice={dice}
@@ -181,7 +181,7 @@ export default function PlayerCard({
             </span>
           </div>
           <div className="selected-dices flex items-center gap-6 flex-wrap">
-            {selectedDicePool.map((dice) => (
+            {selectedDicePool.map(dice => (
               <DiceComponent
                 key={dice.getId()}
                 dice={dice}
@@ -198,7 +198,7 @@ export default function PlayerCard({
         <div>
           <div>Current Pool:</div>
           <div className="current-dices-in-hand flex items-center gap-6 flex-wrap">
-            {currentDicePool.map((dice) => (
+            {currentDicePool.map(dice => (
               <DiceComponent
                 key={dice.getId()}
                 dice={dice}
