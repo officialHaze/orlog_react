@@ -16,7 +16,7 @@ export default class Player {
   private selectedDices: Dice[] = [];
   private confirmedDices: Dice[] = [];
 
-  private health: number = 5;
+  private health: number = 15;
 
   private turnsPlayed = 0; // 3 is maximum
 
@@ -90,7 +90,7 @@ export default class Player {
   }
 
   public resetDiceValues() {
-    this.dices.forEach(dice => {
+    this.dices.forEach((dice) => {
       dice.setValue(-1);
     });
   }
@@ -100,9 +100,6 @@ export default class Player {
   }
 
   public reset() {
-    // this.emptyTheDices();
-    // this.readyTheDices();
-    // this.resetDiceValues();
     this.selectedDices = [];
     this.confirmedDices = [];
 
